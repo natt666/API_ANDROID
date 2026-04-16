@@ -1,0 +1,6 @@
+@simex_api_HostAddress = http://localhost:5200
+
+GET {{simex_api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

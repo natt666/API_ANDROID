@@ -18,6 +18,8 @@ namespace simex_api.Controllers
         [HttpGet("client/{clientId}")]
         public async Task<ActionResult<IEnumerable<Oferte>>> GetOfertesByClient(int clientId)
         {
+            ActionResult result;
+
             var ofertes = await _context.Ofertes
             .Where(o => o.Solicitud.ClientId == clientId)
             .Select(o => new
@@ -45,15 +47,21 @@ namespace simex_api.Controllers
 
             if (ofertes == null || !ofertes.Any())
             {
-                return NotFound(new { missatge = "No s'han trobat ofertes per aquest client" });
+                result =  NotFound(new { missatge = "No s'han trobat ofertes per aquest client" });
+            }
+            else
+            {
+                result = Ok(ofertes);
             }
 
-            return Ok(ofertes);
+            return result;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetOfertaDetalle(int id)
         {
+            ActionResult result;
+
             var oferta = await _context.Ofertes
                 .Where(o => o.Id == id)
                     .Select(o => new
@@ -111,9 +119,16 @@ namespace simex_api.Controllers
                 })
                 .FirstOrDefaultAsync();
 
-            if (oferta == null) return NotFound();
+            if (oferta == null)
+            {
+                result = NotFound();
+            }
+            else
+            {
+                result = Ok(oferta);
+            }
 
-            return Ok(oferta);
+            return result;
         }
     }
 }

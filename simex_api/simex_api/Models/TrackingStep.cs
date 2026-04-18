@@ -14,4 +14,6 @@ public partial class TrackingStep
     public virtual ICollection<Incoterm> Incoterms { get; set; } = new List<Incoterm>();
 
     public virtual ICollection<TipusTracking> TipusTrackings { get; set; } = new List<TipusTracking>();
+
+    public virtual ICollection<TrackingHistory> TrackingHistories { get; set; } = new List<TrackingHistory>();
 }

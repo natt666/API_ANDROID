@@ -55,6 +55,8 @@ public partial class Oferte
 
     public int? TipusGrupCarregaId { get; set; }
 
+    public int? TrackingStepId { get; set; }
+
     public virtual Usuari AgentComercial { get; set; } = null!;
 
     public virtual Document? Documents { get; set; }
@@ -76,6 +78,8 @@ public partial class Oferte
     public virtual TipusTransport TipusTransport { get; set; } = null!;
 
     public virtual TipusValidacion TipusValidacio { get; set; } = null!;
+
+    public virtual ICollection<TrackingHistory> TrackingHistories { get; set; } = new List<TrackingHistory>();
 
     public virtual Transportiste? TransportistaDestino { get; set; }
 

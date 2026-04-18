@@ -19,6 +19,8 @@ public partial class Simex02Context : DbContext
 
     public virtual DbSet<CacheLock> CacheLocks { get; set; }
 
+    public virtual DbSet<ChatbotMessage> ChatbotMessages { get; set; }
+
     public virtual DbSet<Ciutat> Ciutats { get; set; }
 
     public virtual DbSet<Document> Documents { get; set; }
@@ -73,6 +75,8 @@ public partial class Simex02Context : DbContext
 
     public virtual DbSet<TipusValidacion> TipusValidacions { get; set; }
 
+    public virtual DbSet<TrackingHistory> TrackingHistories { get; set; }
+
     public virtual DbSet<TrackingStep> TrackingSteps { get; set; }
 
     public virtual DbSet<Transportiste> Transportistes { get; set; }
@@ -117,6 +121,37 @@ public partial class Simex02Context : DbContext
             entity.Property(e => e.Owner)
                 .HasMaxLength(255)
                 .HasColumnName("owner");
+        });
+
+        modelBuilder.Entity<ChatbotMessage>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__chatbot___3213E83F14846776");
+
+            entity.ToTable("chatbot_messages");
+
+            entity.HasIndex(e => e.UsuariId, "chatbot_messages_usuari_id_index");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("created_at");
+            entity.Property(e => e.Error).HasColumnName("error");
+            entity.Property(e => e.Model)
+                .HasMaxLength(120)
+                .HasColumnName("model");
+            entity.Property(e => e.Prompt).HasColumnName("prompt");
+            entity.Property(e => e.Provider)
+                .HasMaxLength(40)
+                .HasColumnName("provider");
+            entity.Property(e => e.Reply).HasColumnName("reply");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("ok")
+                .HasColumnName("status");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("datetime")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.UsuariId).HasColumnName("usuari_id");
         });
 
         modelBuilder.Entity<Ciutat>(entity =>
@@ -302,6 +337,10 @@ public partial class Simex02Context : DbContext
         {
             entity.ToTable("ofertes");
 
+            entity.HasIndex(e => e.OperadorId, "ofertes_operador_id_index");
+
+            entity.HasIndex(e => e.SolicitudId, "ofertes_solicitud_id_index");
+
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Acabat).HasColumnName("acabat");
             entity.Property(e => e.Acceptat).HasColumnName("acceptat");
@@ -334,6 +373,7 @@ public partial class Simex02Context : DbContext
             entity.Property(e => e.TipusGrupCarregaId).HasColumnName("tipus_grup_carrega_id");
             entity.Property(e => e.TipusTransportId).HasColumnName("tipus_transport_id");
             entity.Property(e => e.TipusValidacioId).HasColumnName("tipus_validacio_id");
+            entity.Property(e => e.TrackingStepId).HasColumnName("tracking_step_id");
             entity.Property(e => e.TransportistaDestinoId).HasColumnName("transportista_destino_id");
             entity.Property(e => e.TransportistaOrigenId).HasColumnName("transportista_origen_id");
             entity.Property(e => e.Vist).HasColumnName("vist");
@@ -515,6 +555,10 @@ public partial class Simex02Context : DbContext
         {
             entity.ToTable("solicitud");
 
+            entity.HasIndex(e => e.ClientId, "solicitud_client_id_index");
+
+            entity.HasIndex(e => e.OperadorId, "solicitud_operador_id_index");
+
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("id");
@@ -533,6 +577,7 @@ public partial class Simex02Context : DbContext
             entity.Property(e => e.TipusContenidorId).HasColumnName("tipus_contenidor_id");
             entity.Property(e => e.TipusFluxeId).HasColumnName("tipus_fluxe_id");
             entity.Property(e => e.TipusTransportId).HasColumnName("tipus_transport_id");
+            entity.Property(e => e.TrackingStepId).HasColumnName("tracking_step_id");
             entity.Property(e => e.Volum).HasColumnName("volum");
 
             entity.HasOne(d => d.Client).WithMany(p => p.SolicitudClients)
@@ -692,6 +737,33 @@ public partial class Simex02Context : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("tipus");
+        });
+
+        modelBuilder.Entity<TrackingHistory>(entity =>
+        {
+            entity.ToTable("tracking_history");
+
+            entity.HasIndex(e => e.OfertaId, "idx_tracking_history_oferta");
+
+            entity.HasIndex(e => e.Timestamp, "idx_tracking_history_timestamp").IsDescending();
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.OfertaId).HasColumnName("oferta_id");
+            entity.Property(e => e.Timestamp)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("timestamp");
+            entity.Property(e => e.TrackingStepId).HasColumnName("tracking_step_id");
+
+            entity.HasOne(d => d.Oferta).WithMany(p => p.TrackingHistories)
+                .HasForeignKey(d => d.OfertaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tracking_history_ofertes");
+
+            entity.HasOne(d => d.TrackingStep).WithMany(p => p.TrackingHistories)
+                .HasForeignKey(d => d.TrackingStepId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_tracking_history_tracking_steps");
         });
 
         modelBuilder.Entity<TrackingStep>(entity =>

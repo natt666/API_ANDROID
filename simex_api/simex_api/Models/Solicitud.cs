@@ -33,6 +33,8 @@ public partial class Solicitud
 
     public int TipusCarregaId { get; set; }
 
+    public int? TrackingStepId { get; set; }
+
     public virtual Usuari Client { get; set; } = null!;
 
     public virtual Ciutat Destino { get; set; } = null!;

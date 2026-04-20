@@ -19,7 +19,6 @@ namespace simex_api.Controllers
         public async Task<ActionResult<IEnumerable<Oferte>>> GetOfertesByClient(int clientId)
         {
             ActionResult result;
-
             var ofertes = await _context.Ofertes
             .Where(o => o.Solicitud.ClientId == clientId)
             .Select(o => new
@@ -29,7 +28,9 @@ namespace simex_api.Controllers
                 Estat = o.EstatOferta.Estat,
                 TipoTransporte = o.Solicitud.TipusTransport.Tipus,
                 TipoGrupCarga = o.TipusGrupCarrega.Nom,
-
+                TransportistaOrigen = o.TransportistaOrigen.Nom,
+                TransportistaDestino = o.TransportistaDestino.Nom,
+                Naviera = o.LiniaTransportMaritim.Nom,
                 SolicitudInfo = new
                 {
                     o.Solicitud.Id,
@@ -44,16 +45,56 @@ namespace simex_api.Controllers
             })
             .OrderByDescending(o => o.DataCreacio)
             .ToListAsync();
-
             if (ofertes == null || !ofertes.Any())
             {
-                result =  NotFound(new { missatge = "No s'han trobat ofertes per aquest client" });
+                result = NotFound(new { missatge = "No s'han trobat ofertes per aquest client" });
             }
             else
             {
                 result = Ok(ofertes);
             }
+            return result;
+        }
 
+        [HttpGet("client/{clientId}/tipus-fluxe/{tipusFluxeId}")]
+        public async Task<ActionResult> GetOfertesByClientAndTipusFluxe(int clientId, int tipusFluxeId)
+        {
+            ActionResult result;
+            var ofertes = await _context.Ofertes
+                .Where(o => o.Solicitud.ClientId == clientId && o.Solicitud.TipusFluxeId == tipusFluxeId)
+                .Select(o => new
+                {
+                    IdOferta = o.Id,
+                    DataCreacio = o.DataCreacio,
+                    DataCaducitat = o.Eta,
+                    Estat = o.EstatOferta.Estat,
+                    TipoTransporte = o.Solicitud.TipusTransport.Tipus,
+                    TipoGrupCarga = o.TipusGrupCarrega.Nom,
+                    TransportistaOrigen = o.TransportistaOrigen.Nom,
+                    TransportistaDestino = o.TransportistaDestino.Nom,
+                    Naviera = o.LiniaTransportMaritim.Nom,
+                    SolicitudInfo = new
+                    {
+                        o.Solicitud.Id,
+                        o.Solicitud.MercanciaNombre,
+                        o.Solicitud.PesBrut,
+                        o.Solicitud.Volum,
+                        Origen = o.Solicitud.Origen.Nom,
+                        Destino = o.Solicitud.Destino.Nom,
+                        Incoterm = o.Solicitud.Incoterm.TipusInconterm.Nom,
+                        TipusFluxe = o.Solicitud.TipusFluxe.Tipus
+                    }
+                })
+                .OrderByDescending(o => o.DataCreacio)
+                .ToListAsync();
+            if (ofertes == null || !ofertes.Any())
+            {
+                result = NotFound(new { missatge = "No s'han trobat ofertes per aquest client" });
+            }
+            else
+            {
+                result = Ok(ofertes);
+            }
             return result;
         }
 
@@ -131,47 +172,6 @@ namespace simex_api.Controllers
             return result;
         }
 
-        [HttpGet("client/{clientId}/tipus-fluxe/{tipusFluxeId}")]
-        public async Task<ActionResult> GetOfertesByClientAndTipusFluxe(int clientId, int tipusFluxeId)
-        {
-            ActionResult result;
-
-            var ofertes = await _context.Ofertes
-                .Where(o => o.Solicitud.ClientId == clientId && o.Solicitud.TipusFluxeId == tipusFluxeId)
-                .Select(o => new
-                {
-                    IdOferta = o.Id,
-                    DataCreacio = o.DataCreacio,
-                    DataCaducitat = o.Eta,
-                    Estat = o.EstatOferta.Estat,
-                    TipoTransporte = o.Solicitud.TipusTransport.Tipus,
-                    TipoGrupCarga = o.TipusGrupCarrega.Nom,
-
-                    SolicitudInfo = new
-                    {
-                        o.Solicitud.Id,
-                        o.Solicitud.MercanciaNombre,
-                        o.Solicitud.PesBrut,
-                        o.Solicitud.Volum,
-                        OrigenId = o.Solicitud.Origen.Id,
-                        DestinoId = o.Solicitud.Destino.Id,
-                        Incoterm = o.Solicitud.Incoterm.TipusInconterm.Nom,
-                        TipusFluxe = o.Solicitud.TipusFluxe.Tipus
-                    }
-                })
-                .OrderByDescending(o => o.DataCreacio)
-                .ToListAsync();
-
-            if (ofertes == null || !ofertes.Any())
-            {
-                result = NotFound(new { missatge = "No s'han trobat ofertes per aquest client" });
-            }
-            else
-            {
-                result = Ok(ofertes);
-            }
-
-            return result;
-        }
+        
     }
 }

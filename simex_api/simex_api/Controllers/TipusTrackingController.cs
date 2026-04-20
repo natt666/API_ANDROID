@@ -68,16 +68,7 @@ namespace TrackingAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/TipusTrackings
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<TipusTracking>> PostTipusTracking(TipusTracking tipusTracking)
-        {
-            _context.TipusTrackings.Add(tipusTracking);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetTipusTracking", new { id = tipusTracking.Id }, tipusTracking);
-        }
+        // 
 
         private bool TipusTrackingExists(int id)
         {
